@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using CommandAPI.Data;
+using CommandAPI.Models;
 
 namespace CommandAPI.Controllers
 {
@@ -17,23 +19,30 @@ namespace CommandAPI.Controllers
         };
 
         private readonly ILogger<CommandsController> _logger;
+        private readonly ICommandAPIRepo _repository;
 
-        public CommandsController(ILogger<CommandsController> logger)
+        public CommandsController(ILogger<CommandsController> logger, ICommandAPIRepo repository)
         {
             _logger = logger;
+            _repository = repository;
         }
-
+        
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public ActionResult<IEnumerable<Command>> Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            IEnumerable<Command> commandItems = _repository.GetAllCommands();
+            return Ok(commandItems);
+        } 
+
+        [HttpGet("{id}")]
+        public ActionResult<IEnumerable<Command>> GetCommandById(int id)
+        {
+            Command commandItem = _repository.GetCommandById(id);
+            if(commandItem==null)
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
-        }
+                return NotFound();
+            }
+            return Ok(commandItem);
+        }   
     }
 }
