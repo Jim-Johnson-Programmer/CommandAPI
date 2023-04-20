@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using CommandAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace CommandAPI
 {
@@ -25,6 +26,9 @@ namespace CommandAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<CommandContext>(opt=>opt.UseNpgsql
+            (Configuration.GetConnectionString("PostgreSqlConnection")));
+             
             services.AddControllers();
             services.AddScoped<ICommandAPIRepo, MockCommandAPIRepo>();
         }
